@@ -31,3 +31,8 @@ def detect_and_mark(image_path):
     result_path = "resultado.jpg"
     cv2.imwrite(result_path, img)
     return result_path
+def open_file():
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        result_path = detect_and_mark(file_path)
+        display_image(result_path)

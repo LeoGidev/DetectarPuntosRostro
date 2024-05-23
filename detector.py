@@ -31,8 +31,16 @@ def detect_and_mark(image_path):
     result_path = "resultado.jpg"
     cv2.imwrite(result_path, img)
     return result_path
+
 def open_file():
     file_path = filedialog.askopenfilename()
     if file_path:
         result_path = detect_and_mark(file_path)
         display_image(result_path)
+
+def display_image(image_path):
+    img = Image.open(image_path)
+    img = img.resize((500, 500))  # Redimensionar la imagen para que se ajuste a la ventana
+    img = ImageTk.PhotoImage(img)
+    panel.config(image=img)
+    panel.image = img

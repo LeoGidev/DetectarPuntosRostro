@@ -40,10 +40,9 @@ def process_image(image_path):
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # Inicializar MediaPipe Face Mesh.
-        face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5)
-
-        # Procesar la imagen y extraer los puntos de referencia faciales.
-        results = face_mesh.process(image_rgb)
+        with mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5) as face_mesh:
+            # Procesar la imagen y extraer los puntos de referencia faciales.
+            results = face_mesh.process(image_rgb)
 
         # Resto del código para procesar y mostrar la imagen...
     except Exception as e:
@@ -67,5 +66,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
 

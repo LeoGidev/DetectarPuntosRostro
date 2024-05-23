@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
-from tkinter import Tk, filedialog
-from tkinter import messagebox
+from tkinter import Tk, filedialog, messagebox, Button
 
 # Inicializa MediaPipe Face Mesh.
 mp_face_mesh = mp.solutions.face_mesh
@@ -57,7 +56,7 @@ def process_image(image_path):
 
     return output_image_path
 
-def main():
+def select_image():
     # Crear una ventana de selección de archivo.
     root = Tk()
     root.withdraw()  # Ocultar la ventana principal.
@@ -70,10 +69,17 @@ def main():
 
     if not image_path:
         messagebox.showinfo("Información", "No se seleccionó ninguna imagen.")
-        return
+    else:
+        output_image_path = process_image(image_path)
+        messagebox.showinfo("Información", f"Imagen procesada y guardada en: {output_image_path}")
 
-    output_image_path = process_image(image_path)
-    messagebox.showinfo("Información", f"Imagen procesada y guardada en: {output_image_path}")
+def main():
+    # Crear el botón para seleccionar una imagen.
+    select_image_button = Button(text="Seleccionar imagen", command=select_image)
+    select_image_button.pack()
+
+    # Mostrar la ventana principal.
+    Tk().mainloop()
 
 if __name__ == "__main__":
     main()

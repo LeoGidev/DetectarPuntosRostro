@@ -44,3 +44,16 @@ def display_image(image_path):
     img = ImageTk.PhotoImage(img)
     panel.config(image=img)
     panel.image = img
+
+
+# Crear la interfaz gráfica
+root = Tk()
+root.title("Detección de partes del cuerpo")
+
+panel = Label(root)
+panel.pack(padx=10, pady=10)
+
+btn = Button(root, text="Abrir imagen", command=open_file)
+btn.pack(pady=20)
+
+root.mainloop()

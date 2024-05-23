@@ -1,59 +1,79 @@
 import cv2
 import mediapipe as mp
-from tkinter import Tk, Button, Label, filedialog
-from PIL import Image, ImageTk
+from tkinter import Tk, filedialog
+from tkinter import messagebox
 
-# Inicializar MediaPipe
+# Inicializa MediaPipe Face Mesh.
+mp_face_mesh = mp.solutions.face_mesh
 mp_drawing = mp.solutions.drawing_utils
-mp_holistic = mp.solutions.holistic
+mp_drawing_styles = mp.solutions.drawing_styles
 
-def detect_and_mark(image_path):
-    img = cv2.imread(image_path)
-    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+# Inicializa los puntos de referencia faciales.
+face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5)
 
-    with mp_holistic.Holistic(static_image_mode=True) as holistic:
-        results = holistic.process(img_rgb)
+def process_image(image_path):
+    # Cargar la imagen
+    image = cv2.imread(image_path)
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        # Dibuja los resultados de detección
-        if results.pose_landmarks:
-            mp_drawing.draw_landmarks(img, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+    # Procesar la imagen y extraer los puntos de referencia faciales.
+    results = face_mesh.process(image_rgb)
 
-        if results.face_landmarks:
-            mp_drawing.draw_landmarks(img, results.face_landmarks, mp_holistic.FACE_CONNECTIONS)
+    # Dibujar puntos de referencia específicos (ojos, nariz, boca) en la imagen.
+    if results.multi_face_landmarks:
+        for face_landmarks in results.multi_face_landmarks:
+            # Dibuja la malla facial completa.
+            mp_drawing.draw_landmarks(
+                image=image,
+                landmark_list=face_landmarks,
+                connections=mp_face_mesh.FACEMESH_TESSELATION,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
 
-        if results.left_hand_landmarks:
-            mp_drawing.draw_landmarks(img, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+            # Dibuja contornos específicos de ojos, nariz y boca.
+            mp_drawing.draw_landmarks(
+                image=image,
+                landmark_list=face_landmarks,
+                connections=mp_face_mesh.FACEMESH_CONTOURS,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
 
-        if results.right_hand_landmarks:
-            mp_drawing.draw_landmarks(img, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+            # Dibuja puntos de referencia específicos (ojos, labios e iris).
+            mp_drawing.draw_landmarks(
+                image=image,
+                landmark_list=face_landmarks,
+                connections=mp_face_mesh.FACEMESH_IRISES,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
 
-    # Guardar la imagen resultado
-    result_path = "resultado.jpg"
-    cv2.imwrite(result_path, img)
-    return result_path
+    # Guardar la imagen con los puntos de referencia.
+    output_image_path = image_path.replace('.jpg', '_marked.jpg')
+    cv2.imwrite(output_image_path, image)
+    
+    # Mostrar la imagen.
+    cv2.imshow('Image with facial landmarks', image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-def open_file():
-    file_path = filedialog.askopenfilename()
-    if file_path:
-        result_path = detect_and_mark(file_path)
-        display_image(result_path)
+    return output_image_path
 
-def display_image(image_path):
-    img = Image.open(image_path)
-    img = img.resize((500, 500))  # Redimensionar la imagen para que se ajuste a la ventana
-    img = ImageTk.PhotoImage(img)
-    panel.config(image=img)
-    panel.image = img
+def main():
+    # Crear una ventana de selección de archivo.
+    root = Tk()
+    root.withdraw()  # Ocultar la ventana principal.
 
+    # Seleccionar un archivo de imagen.
+    image_path = filedialog.askopenfilename(
+        title="Seleccionar imagen",
+        filetypes=(("Archivos JPG", "*.jpg"), ("Todos los archivos", "*.*"))
+    )
 
-# Crear la interfaz gráfica
-root = Tk()
-root.title("Detección de partes del cuerpo")
+    if not image_path:
+        messagebox.showinfo("Información", "No se seleccionó ninguna imagen.")
+        return
 
-panel = Label(root)
-panel.pack(padx=10, pady=10)
+    output_image_path = process_image(image_path)
+    messagebox.showinfo("Información", f"Imagen procesada y guardada en: {output_image_path}")
 
-btn = Button(root, text="Abrir imagen", command=open_file)
-btn.pack(pady=20)
-
-root.mainloop()
+if __name__ == "__main__":
+    main()

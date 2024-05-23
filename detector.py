@@ -58,10 +58,6 @@ def process_image(image_path):
 
 def select_image():
     # Crear una ventana de selección de archivo.
-    root = Tk()
-    root.withdraw()  # Ocultar la ventana principal.
-
-    # Seleccionar un archivo de imagen.
     image_path = filedialog.askopenfilename(
         title="Seleccionar imagen",
         filetypes=(("Archivos JPG", "*.jpg"), ("Todos los archivos", "*.*"))
@@ -74,14 +70,17 @@ def select_image():
         messagebox.showinfo("Información", f"Imagen procesada y guardada en: {output_image_path}")
 
 def main():
+    # Crear la ventana principal.
+    root = Tk()
+
     # Crear el botón para seleccionar una imagen.
-    select_image_button = Button(text="Seleccionar imagen", command=select_image)
+    select_image_button = Button(root, text="Seleccionar imagen", command=select_image)
     select_image_button.pack()
 
     # Mostrar la ventana principal.
-    root = Tk()
     root.mainloop()
 
 if __name__ == "__main__":
     main()
+
 

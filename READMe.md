@@ -4,4 +4,4 @@
 <h4>Imagen inicial</h4>
 <img src="rostro.jpg" width="40%">
 <h4>Resultado</h4>
-<img src="rostro_maked.jpg" width="40%">
+<img src="rostro_marked.jpg" width="40%">
